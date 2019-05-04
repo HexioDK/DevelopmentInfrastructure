@@ -1,0 +1,41 @@
+version: "3.4"
+
+services:
+  traefik:
+    build:
+      context: ./Traefik
+    command: "traefik -c /etc/traefik/config/config.toml"
+    healthcheck:
+      interval: 5s
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.port=8080
+      - traefik.enable=true
+      - traefik.docker.network=infrastructure_default
+      - traefik.frontend.rule=Host:traefik.localhost
+
+  postgres:
+    image: postgres
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+        mode: host
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=Password1234
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  postgres:
+    driver: local
