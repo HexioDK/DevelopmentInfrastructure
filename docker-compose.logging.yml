@@ -1,0 +1,29 @@
+version: "3.4"
+
+services:
+  elasticsearch: 
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.5.4
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:6.5.4
+    environment:
+      - LOGGING_QUIET=true
+      - KIBANA_DEFAULTAPPID=discover
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    labels:
+      - traefik.port=5601
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.frontend.rule=Host:kibana.localhost
+
+volumes:
+  elasticsearch:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
